@@ -73,11 +73,10 @@ public class Bankserviceimpl implements Bankservice {
 			bankrepository.delete(account);
 
 	}
+
 	@Override
-	public Page<Bank> get_All(int pageno, int pagesize) {
+	public Page<Bank> getPaginatedAccounts(Pageable pageable) {
 	
-		
-		Pageable pageable = PageRequest.of(pageno, pagesize);
 		return bankrepository.findAll(pageable);
 	}
 	

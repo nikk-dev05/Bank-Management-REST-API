@@ -3,6 +3,7 @@ package in.sp.main.services;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import in.sp.main.entity.Bank;
 
@@ -14,6 +15,7 @@ public interface Bankservice {
 	public Bank depositMoney(int id, double amount);
 	public Bank withdrawMoney(int id,double amount);
 	public void deleteAccount(int id);
-	public  Page<Bank> get_All(int pageno,int pagesize);
+
+	Page<Bank> getPaginatedAccounts(Pageable pageable); 
 
 }

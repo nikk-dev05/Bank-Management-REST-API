@@ -5,7 +5,12 @@ import java.util.List;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+
 import org.springframework.data.domain.Page;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +43,7 @@ public class Mycontroller {
         Bank details = bankservice.getAccountdetailsByNmuber(id);
         return ResponseEntity.ok(details);
     }
+    
 
     // Get all accounts
     @GetMapping
@@ -60,12 +66,9 @@ public class Mycontroller {
         return ResponseEntity.ok(updated);
     }
 
-    // Get paginated results
-    @GetMapping("/page/{pageNo}/size/{pageSize}")
-    public ResponseEntity<Page<Bank>> getPaginatedAccounts(@PathVariable int pageNo, @PathVariable int pageSize) {
-        Page<Bank> result = bankservice.get_All(pageNo, pageSize);
-        return ResponseEntity.ok(result);
-    }
+   
+    
+   
 
     // Delete account
     @DeleteMapping("/{id}")
@@ -73,6 +76,17 @@ public class Mycontroller {
         bankservice.deleteAccount(id);
         return ResponseEntity.ok("Account deleted successfully.");
     }
+ // Get all accounts with pagination
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<Bank>> getAccountsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Bank> pagedAccounts = bankservice.getPaginatedAccounts(pageable);
+        return ResponseEntity.ok(pagedAccounts);
+    }
+
 
     // Handle custom exceptions
     @ExceptionHandler(Myexception.class)
