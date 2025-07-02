@@ -1,87 +1,104 @@
 # 🏦 Bank Management REST API
 
-This is a backend project built using **Spring Boot** to manage bank accounts. The RESTful API supports creating bank accounts, deposit/withdraw transactions, deleting accounts, and listing all accounts with pagination.
+This is a secure **Bank Management System** built using **Spring Boot**, with user authentication, password encryption, and a clean RESTful API structure.
 
 ---
 
 ## 🚀 Features
 
-- Create new bank account
-- View account by ID
-- View all accounts (with pagination)
-- Deposit and withdraw money
-- Delete account
-- Global exception handling
+- ✅ User Registration (`/user/signup`)
+- ✅ Secure Login with Password Encryption (`/user/login`)
+- ✅ Passwords encrypted using **BCrypt**
+- ✅ Input validation using `jakarta.validation`
+- ✅ Exception handling with clean HTTP responses
 
 ---
 
-## 📦 Technologies Used
+## 🛠️ Tech Stack
 
-- Java 17
-- Spring Boot
-- Spring Data JPA
-- MySQL
-- Maven
+| Layer        | Technology            |
+|--------------|------------------------|
+| Language     | Java                   |
+| Backend      | Spring Boot            |
+| Security     | BCryptPasswordEncoder  |
+| Validation   | Jakarta Bean Validation (`@Valid`) |
+| Database     | H2 / MySQL (Your Choice) |
+| Build Tool   | Maven                  |
+| HTTP Client  | Postman / curl         |
 
 ---
 
-## 📁 Folder Structure
+## 🔐 API Endpoints
 
+### 📥 Register (Sign Up)
 ```
-src/
- └── main/
-      ├── controller/
-      ├── services/
-      ├── repository/
-      └── entity/
-```
+POST /user/signup
+Content-Type: application/json
 
----
-
-## ⚙️ Configuration
-
-In `application.properties`, configure your MySQL database:
-
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/bankdb
-spring.datasource.username=root
-spring.datasource.password=your_password
-spring.jpa.hibernate.ddl-auto=update
+{
+  "name": "nikhil",
+  "password": "your_password"
+}
 ```
 
----
+### 🔓 Login
+```
+POST /user/login
+Content-Type: application/json
 
-## 📬 API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST   | `/bank` | Create new account |
-| GET    | `/bank/{id}` | Get account by ID |
-| GET    | `/bank` | Get all accounts |
-| GET    | `/bank/paginated?page=0&size=5` | Paginated account listing |
-| PUT    | `/bank/{id}/deposit?amount=1000` | Deposit money |
-| PUT    | `/bank/{id}/withdraw?amount=500` | Withdraw money |
-| DELETE | `/bank/{id}` | Delete account |
+{
+  "name": "nikhil",
+  "password": "your_password"
+}
+```
 
 ---
 
-## 🔥 Planned Improvements
+## 📂 Project Structure
 
-- Swagger/OpenAPI documentation
-- Role-based authentication with Spring Security
-- Transaction history tracking
-- Unit testing with JUnit + Mockito
-- Docker support
+```
+src
+├── controller        # REST Controllers (Authcontroller)
+├── entity            # JPA Entity (User)
+├── repository        # Spring Data Repositories
+├── services          # Business Logic Layer
+└── main              # Application Entry Point
+```
 
 ---
 
-## 👤 Author
+## 🧪 How to Run
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/nikk-dev05/Bank-Management-REST-API.git
+
+# 2. Open in IDE (IntelliJ, VS Code, etc.)
+
+# 3. Build and run
+mvn clean install
+mvn spring-boot:run
+```
+
+---
+
+## 📌 To Do (Future Enhancements)
+
+- 🔐 Add JWT Token Authentication
+- 👥 Add Role-based Access (admin/user)
+- 💾 Connect to MySQL for production
+- 🧪 Add Swagger API documentation
+
+---
+
+## 👨‍💻 Author
 
 **Nikhil Tiwari**  
-🔗 [GitHub Profile](https://github.com/nikk-dev05)
+Aspiring Backend Developer | Java + Spring Boot Enthusiast  
+[GitHub Profile](https://github.com/nikk-dev05)
 
 ---
 
-## 🧠 Contributing
+## 📃 License
 
-Feel free to fork this repo, raise issues, or submit pull requests to contribute.
+This project is licensed under the MIT License.
