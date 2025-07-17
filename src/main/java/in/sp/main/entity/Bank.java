@@ -1,40 +1,44 @@
 package in.sp.main.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table
 public class Bank {
-     @Id
-     @GeneratedValue(strategy = GenerationType.IDENTITY)
-     @Column
-	private int account_number;
-     @Column
-	private String account_holder_name;
-     @Column
-	private double account_balance;
-	public int getAccount_number() {
-		return account_number;
-	}
-	public void setAccount_number(int account_number) {
-		this.account_number = account_number;
-	}
-	public String getAccount_holder_name() {
-		return account_holder_name;
-	}
-	public void setAccount_holder_name(String account_holder_name) {
-		this.account_holder_name = account_holder_name;
-	}
-	public double getAccount_balance() {
-		return account_balance;
-	}
-	public void setAccount_balance(double account_balance) {
-		this.account_balance = account_balance;
-	}
-	
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "account_number") 
+    private int accountNumber;        
+
+    @Column(name = "account_holder_name")
+    private String accountHolderName;
+
+    @Column(name = "account_balance")
+    private double accountBalance;
+
+    // Getters and Setters
+    public int getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(int accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public String getAccountHolderName() {
+        return accountHolderName;
+    }
+
+    public void setAccountHolderName(String accountHolderName) {
+        this.accountHolderName = accountHolderName;
+    }
+
+    public double getAccountBalance() {
+        return accountBalance;
+    }
+
+    public void setAccountBalance(double accountBalance) {
+        this.accountBalance = accountBalance;
+    }
 }

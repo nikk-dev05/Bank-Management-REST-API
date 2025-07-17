@@ -7,18 +7,22 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 
 import in.sp.main.Repository.Bankrepository;
+import in.sp.main.Repository.TransactionRepo;
 import in.sp.main.entity.Bank;
+import in.sp.main.entity.Transaction;
 
 @Service
 public class Bankserviceimpl implements Bankservice {
      @Autowired
 	private Bankrepository bankrepository;
+     @Autowired
+     private TransactionRepo transactionRepo;
 	@Override
 	public Bank create_account(Bank bank) {
 	
@@ -42,27 +46,52 @@ public class Bankserviceimpl implements Bankservice {
 	}
 	@Override
 	public Bank depositMoney(int id, double amount) {
-	  Bank money_added= bankrepository.findById(id).orElseThrow(()-> new RuntimeException("Account not found with this id"+id));
-				             Double money = money_added.getAccount_balance();
-		               money_added.setAccount_balance(money + amount );
-		             return bankrepository.save(money_added);
-	
+	    Bank money_added = bankrepository.findById(id)
+	        .orElseThrow(() -> new RuntimeException("Account not found with this id: " + id));
+
+	    Double money = money_added.getAccountBalance();
+	    money_added.setAccountBalance(money + amount);
+	    Bank updatedAccount = bankrepository.save(money_added);
+
+	    
+	    Transaction tx = new Transaction();
+	    tx.setBank(updatedAccount);
+	    tx.setType("DEPOSIT");
+	    tx.setAmount(amount);
+	    tx.setTimestamp(java.time.LocalDateTime.now());
+	    transactionRepo.save(tx);
+
+	    return updatedAccount;
 	}
+
 	@Override
-			    
 	public Bank withdrawMoney(int id, double amount) {
 	    Bank account = bankrepository.findById(id)
 	        .orElseThrow(() -> new RuntimeException("Account not found with ID: " + id));
 	    
-	    double currentBalance = account.getAccount_balance();
-	    
+	    double currentBalance = account.getAccountBalance();
 	    if (amount > currentBalance) {
 	        throw new RuntimeException("Insufficient Balance");
 	    }
-	    
-	    account.setAccount_balance(currentBalance - amount);
-	    return bankrepository.save(account);
+
+	    account.setAccountBalance(currentBalance - amount);
+	    Bank updatedAccount = bankrepository.save(account);
+
+	   
+	    Transaction tx = new Transaction();
+	    tx.setBank(updatedAccount);
+	    tx.setType("WITHDRAW");
+	    tx.setAmount(amount);
+	    tx.setTimestamp(java.time.LocalDateTime.now());
+	    transactionRepo.save(tx);
+
+	    return updatedAccount;
 	}
+
+
+
+	
+
     
 		   	 
 			

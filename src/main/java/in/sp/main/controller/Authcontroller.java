@@ -1,44 +1,50 @@
 package in.sp.main.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
-import in.sp.main.entity.User;
-import in.sp.main.services.Userservice;
-import jakarta.validation.Valid;
+import in.sp.main.Repository.User_Inforepo;
+import in.sp.main.entity.User1;
 
-
+import in.sp.main.services.JwtService;
 
 @RestController
-@Validated
-public class Authcontroller {
+@RequestMapping("/auth")
+public class AuthController {
 
     @Autowired
-    private Userservice userservice;
+    private AuthenticationManager authManager;
 
-    @PostMapping("/user/signup")
-    public ResponseEntity<String> create(@Valid @RequestBody User user) {
-        String message =  userservice.create_user(user);
-        return ResponseEntity.ok().body(message);
-    }
+    @Autowired
+    private JwtService jwtService;
 
-    @PostMapping("/user/login")
-    public ResponseEntity<String> login(@RequestBody User user) {
-        boolean login = userservice.login_user(user.getName(), user.getPassword());
-        if (login) {
-            return ResponseEntity.ok("User logged in successfully.");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password.");
-        }
-    }
+    @Autowired
+    private UserDetailsService userDetailsService;
 
-    @ExceptionHandler(RuntimeException.class)
-    @ResponseStatus(code = HttpStatus.NOT_ACCEPTABLE)
-    public String handler(Exception e) {
-        return e.getMessage();
+    @Autowired
+   private User_Inforepo user_Inforepo;  
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody User1 user) {
+        Authentication authentication = authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
+        );
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        // ✅ Get userId from DB
+        User1 loggedInUser = user_Inforepo.findByUsername(user.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // ✅ Generate token with userId included
+        String token = jwtService.generateToken(userDetails, loggedInUser.getId());
+
+        return ResponseEntity.ok(token);
     }
 }
-
