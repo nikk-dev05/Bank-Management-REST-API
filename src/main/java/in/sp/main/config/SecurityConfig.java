@@ -1,5 +1,7 @@
 package in.sp.main.config;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +19,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import static org.springframework.security.config.Customizer.withDefaults;
+
+//import org.springframework.web.servlet.config.annotation.CorsRegistry;
+//import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import in.sp.main.Filter.JwtFilter;
 import in.sp.main.Repository.User_Inforepo;
@@ -36,11 +45,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
        return  http
+    		 .cors(withDefaults())
             .csrf(csrf->csrf.disable())
             .authorizeHttpRequests(auth -> auth
-            		.requestMatchers("/auth/**").permitAll()       
-            		.requestMatchers(HttpMethod.DELETE, "/bank/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/bank/all").hasRole("ADMIN")
+            		.requestMatchers("/auth/**").permitAll() 
+            		.requestMatchers("/bank/my", "/bank/my/transactions").hasRole("USER")
+            		.requestMatchers("/bank/**").hasAnyRole("USER", "ADMIN")
+
+            		//.requestMatchers(HttpMethod.DELETE, "/bank/**").hasRole("ADMIN")
+                    //.requestMatchers(HttpMethod.GET, "/bank/all").hasRole("ADMIN")
             	    .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -49,9 +62,36 @@ public class SecurityConfig {
 
     }
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://127.0.0.1:3000", "http://localhost:3000"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+    //@Bean
+    //public WebMvcConfigurer corsConfigurer() {
+      //  return new WebMvcConfigurer() {
+        //    @Override
+          //  public void addCorsMappings(CorsRegistry registry) {
+            //    registry.addMapping("/**")
+              //          .allowedOrigins("http://127.0.0.1:3000","http://localhost:3000")
+                //        .allowedMethods("*")
+                  //      .allowedHeaders("*")
+                    //    .allowCredentials(true);
+  //          }
+    //    };
+    //}
+
     @Bean
 	public AuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();

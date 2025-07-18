@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.security.Key;
 
@@ -53,6 +54,12 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+    public String extractUsernameFromRequest(HttpServletRequest request) {
+        final String authHeader = request.getHeader("Authorization");
+        final String jwt = authHeader != null && authHeader.startsWith("Bearer ") ? authHeader.substring(7) : null;
+        return jwt != null ? extractUsername(jwt) : null;
+    }
+
 
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);

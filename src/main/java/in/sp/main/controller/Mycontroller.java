@@ -1,5 +1,6 @@
 package in.sp.main.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +14,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import in.sp.main.Repository.Bankrepository;
 import in.sp.main.Repository.TransactionRepo;
 import in.sp.main.entity.Bank;
+import in.sp.main.entity.User1;
 import in.sp.main.exception.Myexception;
 import in.sp.main.services.Bankservice;
 import in.sp.main.services.JwtService;
+import in.sp.main.services.User1service;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
@@ -26,20 +30,46 @@ public class Mycontroller {
 
     @Autowired
     private Bankservice bankservice;
+    @Autowired
+    private Bankrepository bankrepository;
 
     @Autowired
     private JwtService jwtService;
     
     @Autowired
     private TransactionRepo transactionRepo;
+    @Autowired
+    private User1service user1service;
 
    
+   // @PostMapping
+    //public ResponseEntity<Bank> createAccount(@RequestBody Bank bank) {
+      //  if (bank.getAccountHolderName() == null || bank.getAccountHolderName().trim().isEmpty()
+        //        || bank.getAccountBalance() <= 0) {
+          //  throw new Myexception("All fields are mandatory and balance must be greater than 0");
+     //   }
+       // Bank createdAccount = bankservice.create_account(bank);
+     //   return ResponseEntity.status(HttpStatus.CREATED).body(createdAccount);
+    //}
     @PostMapping
-    public ResponseEntity<Bank> createAccount(@RequestBody Bank bank) {
+    public ResponseEntity<Bank> createAccount(@RequestBody Bank bank, Principal principal) {
         if (bank.getAccountHolderName() == null || bank.getAccountHolderName().trim().isEmpty()
                 || bank.getAccountBalance() <= 0) {
             throw new Myexception("All fields are mandatory and balance must be greater than 0");
         }
+
+        // ✅ Get logged-in username from JWT
+        String username = principal.getName();
+
+        // ✅ Fetch user entity from username
+        User1 user = user1service.getUserByUsername(username);
+        if (user == null) {
+            throw new Myexception("No user found for username: " + username);
+        }
+
+        // ✅ Set user to the Bank entity
+        bank.setUser(user);
+
         Bank createdAccount = bankservice.create_account(bank);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAccount);
     }
@@ -130,22 +160,65 @@ public class Mycontroller {
     }
     
 
-    @GetMapping("/{id}/transactions")
+   // @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    //@GetMapping("/{accountNumber}/transactions")
+    //public ResponseEntity<?> getTransactionHistory(@PathVariable int accountNumber, HttpServletRequest request) {
+      //  String token = request.getHeader("Authorization").substring(7);
+     //   Long userIdFromToken = jwtService.extractUserId(token);
+
+       // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       // boolean isAdmin = auth.getAuthorities().stream()
+         //       .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // Check if user owns the account (if not admin)
+       // Bank account = bankrepository.findByAccountNumber(accountNumber);
+        //if (account == null) {
+          //  return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
+       // }
+
+        //if (!isAdmin && !account.getUser().getId().equals(userIdFromToken)) {
+         //   return new ResponseEntity<>("Access Denied", HttpStatus.FORBIDDEN);
+        //}
+
+  //      return ResponseEntity.ok(transactionRepo.findByBankAccountNumber(accountNumber));
+    //}
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<?> getTransactionHistory(@PathVariable int id, HttpServletRequest request) {
+    @GetMapping("/{id}/transactions")
+     public ResponseEntity<?> getTransactionHistory(@PathVariable int id, HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7);
         Long userIdFromToken = jwtService.extractUserId(token);
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication(); 
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
-        if (!isAdmin && id != userIdFromToken.intValue()) {
+        if (isAdmin || id == userIdFromToken.intValue()) {
+            return ResponseEntity.ok(transactionRepo.findByBankAccountNumber(id));
+        } else {
             return new ResponseEntity<>("Access Denied", HttpStatus.FORBIDDEN);
         }
 
-        return ResponseEntity.ok(transactionRepo.findByBankAccountNumber(id));
+
+       // return ResponseEntity.ok(transactionRepo.findByBankAccountNumber(id));
     }
+
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @GetMapping("/my")
+    public ResponseEntity<Bank> getMyBankDetails(HttpServletRequest request) {
+        String username = jwtService.extractUsernameFromRequest(request);
+       Bank bank = bankservice.getAccountDetailsByUsername(username);
+        if (bank == null) {
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        return ResponseEntity.ok(bank);
+    }
+
+   // @GetMapping("/bank/my")
+    //public ResponseEntity<Bank> getMyAccount(Authentication authentication) {
+      //  String username = authentication.getName(); // ✅ Get username from JWT token
+        //Bank account = bankservice.findByUsername(username);
+        //return ResponseEntity.ok(account);
+   // }
+
 
 
     // Handle custom exceptions

@@ -2,6 +2,7 @@ package in.sp.main.services;
 
 
 
+
 import java.util.List;
 
 
@@ -9,13 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import org.springframework.data.domain.Pageable;
-
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import in.sp.main.Repository.Bankrepository;
 import in.sp.main.Repository.TransactionRepo;
+import in.sp.main.Repository.User_Inforepo;
 import in.sp.main.entity.Bank;
 import in.sp.main.entity.Transaction;
+import in.sp.main.entity.User1;
 
 @Service
 public class Bankserviceimpl implements Bankservice {
@@ -23,6 +26,8 @@ public class Bankserviceimpl implements Bankservice {
 	private Bankrepository bankrepository;
      @Autowired
      private TransactionRepo transactionRepo;
+     @Autowired 
+     private User_Inforepo user_Inforepo;
 	@Override
 	public Bank create_account(Bank bank) {
 	
@@ -45,6 +50,7 @@ public class Bankserviceimpl implements Bankservice {
 		return user;
 	}
 	@Override
+
 	public Bank depositMoney(int id, double amount) {
 	    Bank money_added = bankrepository.findById(id)
 	        .orElseThrow(() -> new RuntimeException("Account not found with this id: " + id));
@@ -89,8 +95,15 @@ public class Bankserviceimpl implements Bankservice {
 	}
 
 
+	@Override
+	public Bank getAccountDetailsByUsername(String username) {
+	    User1 user = user_Inforepo.findByUsername(username)
+	        .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+	    
+	    return bankrepository.findByUser(user)
+	        .orElseThrow(() -> new RuntimeException("Bank details not found for user: " + username));
+	}
 
-	
 
     
 		   	 

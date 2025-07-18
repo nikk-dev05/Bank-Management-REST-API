@@ -1,5 +1,8 @@
 package in.sp.main.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,7 +19,7 @@ import in.sp.main.services.JwtService;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthController {
+public class Authcontroller {
 
     @Autowired
     private AuthenticationManager authManager;
@@ -31,7 +34,7 @@ public class AuthController {
    private User_Inforepo user_Inforepo;  
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User1 user) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody User1 user) {
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
         );
@@ -42,9 +45,14 @@ public class AuthController {
         User1 loggedInUser = user_Inforepo.findByUsername(user.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // ✅ Generate token with userId included
+        // ✅ Generate token
         String token = jwtService.generateToken(userDetails, loggedInUser.getId());
 
-        return ResponseEntity.ok(token);
+        // ✅ Return as JSON
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+
+        return ResponseEntity.ok(response);
     }
+
 }

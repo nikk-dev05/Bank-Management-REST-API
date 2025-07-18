@@ -28,5 +28,10 @@ public class User1service  implements UserDetailsService{
 		     
 		  return new User_Principle(user.get());
 	}
+	public User1 getUserByUsername(String username) {
+	    return user_Inforepo.findByUsername(username)
+	        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+	}
+
 
 }

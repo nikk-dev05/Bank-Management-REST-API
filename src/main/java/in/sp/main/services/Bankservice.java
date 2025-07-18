@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import in.sp.main.entity.Bank;
+import in.sp.main.entity.User1;
 
 public interface Bankservice {
 
@@ -17,5 +18,6 @@ public interface Bankservice {
 	public void deleteAccount(int id);
 
 	Page<Bank> getPaginatedAccounts(Pageable pageable); 
+	public Bank getAccountDetailsByUsername(String username);
 
 }
