@@ -22,9 +22,9 @@ public class User1service  implements UserDetailsService{
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
 		Optional<User1> user=	user_Inforepo.findByUsername(username);
-		  if(user==null) {
-			  throw new  UsernameNotFoundException("user not found ");
-		  }
+		if (!user.isPresent()) { 
+	        throw new UsernameNotFoundException("User not found");
+	    }
 		     
 		  return new User_Principle(user.get());
 	}

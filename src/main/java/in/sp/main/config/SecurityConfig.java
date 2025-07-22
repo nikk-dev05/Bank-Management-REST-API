@@ -103,28 +103,9 @@ public class SecurityConfig {
 	public AuthenticationManager  authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 		 return authenticationConfiguration.getAuthenticationManager();
 	}
-    @Bean
-    CommandLineRunner createDefaultUser(User_Inforepo repo, PasswordEncoder encoder) {
-        return args -> {
-            if (repo.findByUsername("nikhil") == null) {
-                User1 user = new User1();
-                user.setUsername("nikhil");
-                user.setPassword(encoder.encode("1234")); 
-                user.setRoles("ROLE_USER");
-                repo.save(user);
-                System.out.println("Default user created.");
-            }
-            if (repo.findByUsername("admin").isEmpty()) {
-                User1 admin = new User1();
-                admin.setUsername("admin");
-                admin.setPassword(encoder.encode("admin123")); 
-                admin.setRoles("ROLE_ADMIN");
-                repo.save(admin);
-                System.out.println("ROLE_ADMIN: admin created.");
-            }
-        };
+  
     }
 
-}
+
 
 

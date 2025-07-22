@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import in.sp.main.Repository.User_Inforepo;
@@ -20,6 +21,8 @@ import in.sp.main.services.JwtService;
 @RestController
 @RequestMapping("/auth")
 public class Authcontroller {
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
     @Autowired
     private AuthenticationManager authManager;
@@ -31,7 +34,21 @@ public class Authcontroller {
     private UserDetailsService userDetailsService;
 
     @Autowired
-   private User_Inforepo user_Inforepo;  
+   private User_Inforepo user_Inforepo;
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody User1 request) {
+        if (user_Inforepo.existsByUsername(request.getUsername())) {
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
+
+        User1 user = new User1();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRoles("ROLE_USER");  // default role
+
+        user_Inforepo.save(user);
+        return ResponseEntity.ok("User registered successfully");
+    }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody User1 user) {
