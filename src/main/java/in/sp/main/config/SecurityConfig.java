@@ -48,6 +48,7 @@ public class SecurityConfig {
     		 .cors(withDefaults())
             .csrf(csrf->csrf.disable())
             .authorizeHttpRequests(auth -> auth
+            		.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
             		.requestMatchers("/auth/**").permitAll() 
             		.requestMatchers("/bank/my", "/bank/my/transactions").hasRole("USER")
             		.requestMatchers("/bank/**").hasAnyRole("USER", "ADMIN")

@@ -9,13 +9,15 @@ import org.springframework.stereotype.Repository;
 
 import in.sp.main.entity.Bank;
 import in.sp.main.entity.User1;
+import java.util.List;
+
 
 @Repository
 public interface Bankrepository extends JpaRepository<Bank, Integer> {
 
    
     Page<Bank> findAll(Pageable pageable);
-    Optional<Bank> findByUser(User1 user);
+    List<Bank> findByUser(User1 user);
   //  Optional<User1> findByUsername(String username);
 
 

@@ -99,10 +99,16 @@ public class Bankserviceimpl implements Bankservice {
 	public Bank getAccountDetailsByUsername(String username) {
 	    User1 user = user_Inforepo.findByUsername(username)
 	        .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-	    
-	    return bankrepository.findByUser(user)
-	        .orElseThrow(() -> new RuntimeException("Bank details not found for user: " + username));
+
+	    List<Bank> accounts = bankrepository.findByUser(user);
+
+	    if (accounts.isEmpty()) {
+	        throw new RuntimeException("Bank details not found for user: " + username);
+	    }
+
+	    return accounts.get(0); // ✅ Return the first bank account (or handle multiple if needed)
 	}
+
 
 
     
